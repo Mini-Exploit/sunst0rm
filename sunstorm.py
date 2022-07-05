@@ -5,35 +5,22 @@ import zipfile
 from manifest import Manifest
 import api
 import subprocess
+import pyimg4
+import shutil
+from m1n1Exception import *
+
+set_package_name(__name__) # init m1n1Exception
 
 def dependencies():
     import os
     import sys
     import subprocess
-    if not os.path.exists('/usr/local/bin/futurerestore'):
-        print('[!] futurerestore not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/img4tool'):
-        print('[!] img4tool not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/img4'):
-        print('[!] img4 not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/Kernel64Patcher'):
-        print('[!] Kernel64Patcher not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/iBoot64Patcher'):
-        print('[!] iBoot64Patcher not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/ldid'):
-        print('[!] ldid not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/asr64_patcher'):
-        print('[!] asr64_patcher not found, please install it')
-        sys.exit(1)
-    if not os.path.exists('/usr/local/bin/restored_external64_patcher'):
-        print('[!] restored_external64_patcher not found, please install it')
-        sys.exit(1)
+    retassure(shutil.which('futurerestore'), 'futurerestore not found')
+    retassure(shutil.which('iBoot64Patcher'), 'iBoot64Patcher not found')
+    retassure(shutil.which('Kernel64Patcher'), 'Kernel64Patcher not found')
+    retassure(shutil.which('ldid'), 'ldid not found')
+    retassure(shutil.which('asr64_patcher'), 'asr64_patcher not found')
+    retassure(shutil.which('restored_external64_patcher'), 'restored_external64_patcher not found')
     
 
 def prep_restore(ipsw, blob, board, kpp):
@@ -252,16 +239,16 @@ def main():
     if args.restore:
         prep_restore(args.ipsw, args.blob, args.boardconfig, args.kpp)
     elif args.boot:
-        if args.identifier == None:
-            print('[!] You need to specify an identifier')
-            sys.exit(0)
+        retassure(args.identifier, 'An identifier is not specified')
         prep_boot(args.ipsw, args.blob, args.boardconfig, args.kpp, args.identifier, args.legacy)
     else:
-        print('[!] Please specify a mode')
-        sys.exit(0)
+        reterror('No mode specified (-r/-b)')
 
 if __name__ == '__main__':
     print("sunst0rm")
     print("Made by mineek")
     print("Some code by m1n1exploit")
-    main()
+    try:
+        main()
+    except m1n1Exception as e:
+        print(e)
